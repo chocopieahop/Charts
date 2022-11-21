@@ -13,12 +13,20 @@ import Foundation
 import CoreGraphics
 
 
+@objc
+public protocol XAxisRendererDelegate
+{
+    @objc optional func renderer(_ renderer: XAxisRenderer, labelPosition: CGPoint)
+}
+
+
 @objc(ChartXAxisRenderer)
 open class XAxisRenderer: NSObject, AxisRenderer
 {
     @objc public let viewPortHandler: ViewPortHandler
     @objc public let axis: XAxis
     @objc public let transformer: Transformer?
+    @objc open weak var delegate: XAxisRendererDelegate?
 
     @objc public init(viewPortHandler: ViewPortHandler, axis: XAxis, transformer: Transformer?)
     {
@@ -275,6 +283,7 @@ open class XAxisRenderer: NSObject, AxisRenderer
             let px = isCenteringEnabled ? CGFloat(axis.centeredEntries[i]) : CGFloat(entries[i])
             position = CGPoint(x: px, y: 0)
                 .applying(valueToPixelMatrix)
+            delegate?.renderer?(self, labelPosition: position)
 
             guard viewPortHandler.isInBoundsX(position.x) else { continue }
             
