@@ -39,6 +39,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     /// the color for the background of the chart-drawing area (everything behind the grid lines).
     @objc open var gridBackgroundColor = NSUIColor(red: 240/255.0, green: 240/255.0, blue: 240/255.0, alpha: 1.0)
     
+    @objc open var isHighlightCenterPoint = false
     @objc open var borderColor = NSUIColor.black
     @objc open var borderLineWidth: CGFloat = 1.0
     
@@ -521,6 +522,7 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
     private var _gestureScaleAxis = GestureScaleAxis.both
     private var _closestDataSetToTouch: ChartDataSetProtocol!
     private var _panGestureReachedEdge: Bool = false
+    private var _indicesToHighlight: [Highlight] = []
     private weak var _outerScrollView: NSUIScrollView?
     
     private var _lastPanPoint = CGPoint() /// This is to prevent using setTranslation which resets velocity
@@ -826,6 +828,33 @@ open class BarLineChartViewBase: ChartViewBase, BarLineScatterCandleBubbleChartD
         if matrix != originalMatrix
         {
             delegate?.chartTranslated?(self, dX: translation.x, dY: translation.y)
+            // MARK: 스크롤할 때 강조표시
+            if delegate !== nil && isHighlightCenterPoint {
+                var entry: ChartDataEntry?
+                var h = self.lastHighlighted
+                
+                if h == nil {
+                    _indicesToHighlight.removeAll(keepingCapacity: false)
+                } else {
+                    entry = data?.entry(for: h!)
+                    if entry == nil {
+                        h = nil
+                        _indicesToHighlight.removeAll(keepingCapacity: false)
+                    } else {
+                        _indicesToHighlight = [h!]
+                    }
+                }
+                
+                let centerH = getHighlightByTouchPoint(self.center)
+                if centerH === nil || centerH!.isEqual(self.lastHighlighted) {
+                    //                    self.highlightValue(nil, callDelegate: true)
+                    //                    self.lastHighlighted = nil
+                } else {
+                    self.highlightValue(centerH, callDelegate: true)
+                    self.lastHighlighted = centerH
+                }
+                delegate?.chartTranslated?(self, dX: translation.x, dY: translation.y, entry: entry, highlight: h, centerIndices: centerH)
+            }
         }
         
         // Did we managed to actually drag or did we reach the edge?
