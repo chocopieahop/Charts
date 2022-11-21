@@ -711,8 +711,13 @@ open class BarChartRenderer: BarLineScatterCandleBubbleRenderer
                 
                 let trans = dataProvider.getTransformer(forAxis: set.axisDependency)
                 
-                context.setFillColor(set.highlightColor.cgColor)
-                context.setAlpha(set.highlightAlpha)
+                if set.highlightColors.count != 0 {
+                    context.setFillColor(set.highlightColors[high.stackIndex].cgColor)
+                    context.setAlpha(set.highlightAlpha)
+                } else {
+                    context.setFillColor(set.highlightColor.cgColor)
+                    context.setAlpha(set.highlightAlpha)
+                }
                 
                 let isStack = high.stackIndex >= 0 && e.isStacked
                 

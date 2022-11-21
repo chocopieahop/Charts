@@ -38,6 +38,8 @@ public protocol ChartViewDelegate
     
     // Callbacks when the chart is moved / translated via drag gesture.
     @objc optional func chartTranslated(_ chartView: ChartViewBase, dX: CGFloat, dY: CGFloat)
+    
+    @objc optional func chartTranslated(_ chartView: ChartViewBase, dX: CGFloat, dY: CGFloat, entry: ChartDataEntry?, highlight: Highlight?, centerIndices: Highlight?)
 
     // Callbacks when Animator stops animating
     @objc optional func chartView(_ chartView: ChartViewBase, animatorDidStop animator: Animator)
@@ -131,6 +133,9 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
     /// - Returns: `true` if drawing the marker is enabled when tapping on values
     /// (use the `marker` property to specify a marker)
     @objc open var isDrawMarkersEnabled: Bool { return drawMarkers }
+    
+    /// 여러개의 강조표시 가능 여부
+    @objc open var isMultipleHighlightEnabled = false
     
     /// The marker that is displayed when a value is clicked on the chart
     @objc open var marker: Marker?
@@ -452,7 +457,14 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
         }
 
         // set the indices to highlight
-       highlighted = [h]
+        if isMultipleHighlightEnabled {
+            if highlighted.count >= 2 {
+                highlighted.removeAll()
+            }
+            highlighted.append(h)
+        } else {
+            highlighted = [h]
+        }
 
         if callDelegate
         {
@@ -508,11 +520,21 @@ open class ChartViewBase: NSUIView, ChartDataProvider, AnimatorDelegate
             // check bounds
             guard viewPortHandler.isInBounds(x: pos.x, y: pos.y) else { continue }
 
-            // callbacks to update the content
-            marker.refreshContent(entry: e, highlight: highlight)
-            
-            // draw the marker
-            marker.draw(context: context, point: pos)
+            if isMultipleHighlightEnabled {
+                if highlight.stackIndex == 1 {
+                    // callbacks to update the content
+                    marker.refreshContent(entry: e, highlight: highlight)
+                    
+                    // draw the marker
+                    marker.draw(context: context, point: pos)
+                }
+            } else {
+                // callbacks to update the content
+                marker.refreshContent(entry: e, highlight: highlight)
+                
+                // draw the marker
+                marker.draw(context: context, point: pos)
+            }
         }
     }
     

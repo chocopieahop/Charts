@@ -20,6 +20,7 @@ open class BarLineScatterCandleBubbleChartDataSet: ChartDataSet, BarLineScatterC
     // MARK: - Styling functions and accessors
     
     open var highlightColor = NSUIColor(red: 255.0/255.0, green: 187.0/255.0, blue: 115.0/255.0, alpha: 1.0)
+    open var highlightColors: [NSUIColor] = []
     open var highlightLineWidth = CGFloat(0.5)
     open var highlightLineDashPhase = CGFloat(0.0)
     open var highlightLineDashLengths: [CGFloat]?
