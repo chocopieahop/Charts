@@ -398,6 +398,7 @@ open class LineChartRenderer: LineRadarRenderer
             var firstPoint = true
 
             let path = CGMutablePath()
+            let verticalLinePath = CGMutablePath()
             for x in stride(from: _xBounds.min, through: _xBounds.range + _xBounds.min, by: 1)
             {
                 guard let e1 = dataSet.entryForIndex(x == 0 ? 0 : (x - 1)) else { continue }
@@ -412,6 +413,9 @@ open class LineChartRenderer: LineRadarRenderer
                 if firstPoint
                 {
                     path.move(to: startPoint)
+                    verticalLinePath.move(to: startPoint)
+                    verticalLinePath.addLine(to: CGPoint(x: startPoint.x, y: viewPortHandler.contentBottom))
+                    verticalLinePath.move(to: startPoint)
                     firstPoint = false
                 }
                 else
@@ -435,6 +439,8 @@ open class LineChartRenderer: LineRadarRenderer
                         y: CGFloat(e2.y * phaseY))
                     .applying(valueToPixelMatrix)
                 path.addLine(to: endPoint)
+                verticalLinePath.move(to: endPoint)
+                verticalLinePath.addLine(to: CGPoint(x: endPoint.x, y: viewPortHandler.contentBottom))
             }
             
             if !firstPoint
@@ -445,6 +451,15 @@ open class LineChartRenderer: LineRadarRenderer
                     context.beginPath()
                     context.addPath(path)
                     context.setStrokeColor(dataSet.color(atIndex: 0).cgColor)
+                    context.strokePath()
+                    
+                    guard let color = dataSet.verticalLineColor else {
+                        return
+                    }
+                    
+                    context.beginPath()
+                    context.addPath(verticalLinePath)
+                    context.setStrokeColor(color.cgColor)
                     context.strokePath()
                 }
             }

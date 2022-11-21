@@ -69,6 +69,8 @@ open class LineChartDataSet: LineRadarChartDataSet, LineChartDataSetProtocol
     }
 
     open var isDrawLineWithGradientEnabled = false
+    
+    open var verticalLineColor: NSUIColor? = UIColor.lightGray
 
     open var gradientPositions: [CGFloat]?
     

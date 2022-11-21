@@ -44,6 +44,8 @@ public protocol LineChartDataSetProtocol: LineRadarChartDataSetProtocol
     
     var circleColors: [NSUIColor] { get set }
     
+    var verticalLineColor: NSUIColor? { get set }
+    
     /// - Returns: The color at the given index of the DataSet's circle-color array.
     /// Performs a IndexOutOfBounds check by modulus.
     func getCircleColor(atIndex: Int) -> NSUIColor?
